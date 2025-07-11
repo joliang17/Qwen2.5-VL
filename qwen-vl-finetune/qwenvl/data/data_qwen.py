@@ -428,12 +428,23 @@ class LazySupervisedDataset(Dataset):
                 for merged_thw in video_grid_thw_merged
             ]
         chat_sources = copy.deepcopy([e["conversations"] for e in sources])
-        data_dict = preprocess_qwen_2_visual(
-            chat_sources,
-            self.tokenizer,
-            grid_thw_image=grid_thw_merged if grid_thw_merged else None,
-            grid_thw_video=video_grid_thw_merged if video_grid_thw_merged else None,
-        )
+        try:
+            data_dict = preprocess_qwen_2_visual(
+                chat_sources,
+                self.tokenizer,
+                grid_thw_image=grid_thw_merged if grid_thw_merged else None,
+                grid_thw_video=video_grid_thw_merged if video_grid_thw_merged else None,
+            )
+        except Exception as e:
+            import traceback
+            print(sources)
+            print(f"\n[Detailed Error] Failed to preprocess sample {i}")
+            print(f"Exception: {e}")
+            traceback.print_exc()
+            print("chat_sources:")
+            print(json.dumps(chat_sources, indent=2))
+            raise e  # Optional: re-raise to crash and inspect full trace
+
         position_ids, _ = self.get_rope_index(
             self.data_args.image_processor.merge_size,
             data_dict["input_ids"],

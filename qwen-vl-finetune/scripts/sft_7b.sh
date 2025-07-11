@@ -9,7 +9,7 @@ NNODES=${WORLD_SIZE:-1}
 deepspeed=./scripts/zero3.json
 
 # Model configuration
-llm=Qwen/Qwen2.5-VL-7B-Instruct  # Using HuggingFace model ID
+llm=Qwen/Qwen2.5-VL-3B-Instruct  # Using HuggingFace model ID
 
 # Training hyperparameters
 lr=2e-7
@@ -20,23 +20,25 @@ grad_accum_steps=4
 entry_file=qwenvl/train/train_qwen.py
 
 # Dataset configuration (replace with public dataset names)
-datasets=public_dataset1,public_dataset2
+datasets=scienceqa
 
 # Output configuration
 run_name="qwen2vl-baseline"
-output_dir=./output
+output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen/checkpoints"
+cache_dir="/fs/nexus-projects/wilddiffusion/cache"  
 
 # Training arguments
 args="
     --deepspeed ${deepspeed} \
     --model_name_or_path "${llm}" \
     --dataset_use ${datasets} \
+    --output_dir ${output_dir} \
+    --cache_dir ${cache_dir} \
     --data_flatten True \
     --tune_mm_vision False \
     --tune_mm_mlp True \
     --tune_mm_llm True \
     --bf16 \
-    --output_dir ${output_dir} \
     --num_train_epochs 0.5 \
     --per_device_train_batch_size ${batch_size} \
     --per_device_eval_batch_size $((batch_size*2)) \

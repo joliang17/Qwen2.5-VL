@@ -43,6 +43,8 @@ from qwenvl.train.argument import (
     TrainingArguments,
 )
 from transformers import AutoTokenizer, AutoProcessor, Qwen2VLImageProcessor, Trainer
+import torch.distributed as dist
+
 
 local_rank = None
 
@@ -149,6 +151,9 @@ def train(attn_implementation="flash_attention_2"):
     )
     set_model(model_args, model)
 
+    if not dist.is_initialized():
+        dist.init_process_group(backend="nccl")
+
     if torch.distributed.get_rank() == 0:
         model.visual.print_trainable_parameters()
         model.model.print_trainable_parameters()
@@ -160,7 +165,6 @@ def train(attn_implementation="flash_attention_2"):
     trainer = Trainer(
         model=model, processing_class=tokenizer, args=training_args, **data_module
     )
-
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         logging.info("checkpoint found, resume training")
         trainer.train(resume_from_checkpoint=True)

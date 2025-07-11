@@ -41,7 +41,8 @@ class Qwen2VLPromptMixin:
         # return False
 
     def build_prompt(self, line, dataset: str) -> list[dict[str, str]]:
-        return self._build_mmmu_prompt(line, dataset)
+        # return self._build_mmmu_prompt(line, dataset)
+        return self._build_qag_prompt(line, dataset)
 
     def split_MMMU(self, msgs):
         text, images = None, []
@@ -103,6 +104,24 @@ class Qwen2VLPromptMixin:
        
         msgs_new = self.split_MMMU(msgs)
         return msgs_new
+
+
+    def _build_qag_prompt(self, line, dataset: str) -> list[dict[str, str]]:
+
+        import string
+        import pandas as pd
+
+        tgt_path = line['image_path']
+        question = line['conversations'][0]['value']
+        prompt = question.rstrip()
+        
+        msgs = []
+        if isinstance(tgt_path, list):
+            msgs.extend([dict(type='image', value=p) for p in tgt_path])
+        else:
+            msgs = [dict(type='image', value=tgt_path)]
+        msgs.append(dict(type='text', value=prompt))
+        return msgs
 
     def _build_mcq_prompt(self, line, dataset: str) -> list[dict[str, str]]:
         """change the prompt for MCQ dataset: use chinese prompt if the question contains chinese characters."""

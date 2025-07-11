@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Any
 from common_utils import download_file, md5, toliststr, decode_base64_to_image_file
+import json
 
 MMMU_DATASET_URL = 'https://opencompass.openxlab.space/utils/VLMEval/MMMU_DEV_VAL.tsv'
 MMMU_DATASET_MD5 = '521afc0f3bf341e6654327792781644d'
@@ -49,6 +50,26 @@ def load_dataset(dataset_name='MMMU_DEV_VAL'):
         data['index'] = [int(x) for x in data['index']]
     
     return data
+
+
+def load_dataset_json(dataset_path):
+    """Load the json dataset."""
+
+    # Load json dataset
+    with open(dataset_path, 'r') as f:
+        data = json.load(f)
+
+    image_map = dict()
+    list_data = []
+    for s_id, sample in enumerate(data):
+        img_path = sample['image'].replace('../evaluation/mmmu/', '')
+        sample['index'] = s_id
+        sample['image'] = img_path
+        sample['image_path'] = img_path
+        list_data.append(sample)
+
+    return list_data
+
 
 def dump_image(line, img_root):
     """Save image data to disk and return the path."""
