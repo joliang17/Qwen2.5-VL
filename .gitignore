@@ -11,5 +11,5 @@ wheels/
 *.png
 *.json
 *.log
-
+*.conf
 */wandb/*

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=qwen_normal
-#SBATCH --output=qwen_normal.log
-#SBATCH --error=qwen_normal.log
+#SBATCH --job-name=llm_mlp_3b_colorbench
+#SBATCH --output=llm_mlp_3b_colorbench.log
+#SBATCH --error=llm_mlp_3b_colorbench.log
 #SBATCH --time=48:00:00
 #SBATCH --account=cml-zhou
 #SBATCH --partition=cml-zhou
@@ -22,6 +22,7 @@ MASTER_ADDR=${MASTER_ADDR:-"127.0.0.1"}
 MASTER_PORT=${MASTER_PORT:-$(shuf -i 20001-29999 -n 1)}
 NNODES=${WORLD_SIZE:-1}
 NPROC_PER_NODE=1
+export TRITON_CACHE_DIR="/fs/nexus-faculty/zhou/colorbench/cache"
 
 # DeepSpeed configuration
 deepspeed=./scripts/zero3.json
@@ -30,7 +31,7 @@ deepspeed=./scripts/zero3.json
 llm="Qwen/Qwen2.5-VL-3B-Instruct"  # Using HuggingFace model ID
 
 # Training hyperparameters
-lr=2e-7
+lr=2e-5
 batch_size=4
 grad_accum_steps=4
 
@@ -39,12 +40,15 @@ entry_file=qwenvl/train/train_qwen.py
 
 # Dataset configuration (replace with public dataset names)
 # datasets=scienceqa_normal
-datasets=mminstruct  # Using the new MMINSTRUCT datasets
+# datasets=mminstruct  # Using the new MMINSTRUCT datasets
+datasets=colorbench  # Using the new MMINSTRUCT datasets
 
 # Output configuration
-run_name="qwen2vl-baseline"
-output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen/qwen25_checkpoints_mminstruct_normal_3epochs"
-cache_dir="/fs/nexus-projects/wilddiffusion/cache"  
+POSTFIX="llm_mlp"
+run_name="qwen2vl-3b-colorbench_${POSTFIX}"
+output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen/qwen25_3b_colorbench_${POSTFIX}_${lr}"
+cache_dir="/fs/nexus-faculty/zhou/colorbench/cache"
+
 
 # Training arguments
     # --deepspeed ${deepspeed} \

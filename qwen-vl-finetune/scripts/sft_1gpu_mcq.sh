@@ -30,7 +30,8 @@ deepspeed=./scripts/zero3.json
 llm="Qwen/Qwen2.5-VL-3B-Instruct"  # Using HuggingFace model ID
 
 # Training hyperparameters
-lr=2e-7
+# lr=2e-7
+lr=2e-5
 batch_size=4
 grad_accum_steps=4
 
@@ -38,11 +39,12 @@ grad_accum_steps=4
 entry_file=qwenvl/train/train_qwen.py
 
 # Dataset configuration (replace with public dataset names)
-datasets=scienceqa
+# datasets=scienceqa
+datasets="mminstruct_keywords"  # Using the new MMINSTRUCT datasets
 
 # Output configuration
 run_name="qwen2vl-baseline"
-output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen/qwen25_checkpoints_mcq_3epochs"
+output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen/qwen25_checkpoints_mminstruct_keywords_3epochs"
 cache_dir="/fs/nexus-projects/wilddiffusion/cache"  
 
 # Training arguments

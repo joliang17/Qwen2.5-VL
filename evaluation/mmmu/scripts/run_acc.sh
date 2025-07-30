@@ -14,9 +14,19 @@ source /fs/nexus-scratch/yliang17/miniconda3/bin/activate qwen
 source /etc/profile.d/modules.sh
 module add cuda/12.4.1
 
-RESULT_TYPE="mcq"  # mcq / normal / baseline
-INPUT_FILE="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mcq_acc/${RESULT_TYPE}_ver.json"
-OUTPUT_FOLDER="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mcq_parsed"
+# Load API_KEY from key.conf
+source /fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/scripts/key.conf
+
+RESULT_TYPE="keywords"  # mcq / normal / baseline
+INPUT_FILE="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mminstruct_scienceqa/${RESULT_TYPE}_ver.json"
+OUTPUT_FOLDER="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mminstruct_scienceqa_acc"
 
 python3 run_scienceqa_v2.py eval --input-file="${INPUT_FILE}" --output-folder="${OUTPUT_FOLDER}" --api-key="${API_KEY}" --result-type="${RESULT_TYPE}"
+
+RESULT_TYPE="normal"  # mcq / normal / baseline
+INPUT_FILE="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mminstruct_scienceqa/${RESULT_TYPE}_ver.json"
+OUTPUT_FOLDER="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mminstruct_scienceqa_acc"
+
+python3 run_scienceqa_v2.py eval --input-file="${INPUT_FILE}" --output-folder="${OUTPUT_FOLDER}" --api-key="${API_KEY}" --result-type="${RESULT_TYPE}"
+
 

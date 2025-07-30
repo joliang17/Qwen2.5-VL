@@ -36,6 +36,21 @@ SCIENCE_QA_NORMAL = {
     "data_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa/images",
 }
 
+MMINSTRUCT_KEYWORDS = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/mminstruct/train_keywords.json",
+    "data_path": "",
+}
+
+MMINSTRUCT = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/mminstruct/train_normal.json",
+    "data_path": "",
+}
+
+COLORBENCH = {  
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/colorbench/train.json",
+    "data_path": "",
+}
+
 data_dict = {
     "cambrian_737k": CAMBRIAN_737K,
     "cambrian_737k_pack": CAMBRIAN_737K_PACK,
@@ -43,7 +58,10 @@ data_dict = {
     "clevr_mc": CLEVR_MC,
     "videochatgpt": VIDEOCHATGPT,
     "scienceqa": SCIENCE_QA,
-    "scienceqa_normal": SCIENCE_QA_NORMAL
+    "scienceqa_normal": SCIENCE_QA_NORMAL,
+    "mminstruct_keywords": MMINSTRUCT_KEYWORDS,
+    "mminstruct": MMINSTRUCT,
+    "colorbench": COLORBENCH, 
 }
 
 
@@ -69,7 +87,8 @@ def data_list(dataset_names):
 
 
 if __name__ == "__main__":
-    dataset_names = ["scienceqa_normal", "scienceqa"]
+    # dataset_names = ["scienceqa_normal", "scienceqa"]
+    dataset_names = ["mminstruct_keywords", "mminstruct", "colorbench"]
     configs = data_list(dataset_names)
     for config in configs:
         print(config)

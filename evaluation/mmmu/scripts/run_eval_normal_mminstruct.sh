@@ -16,8 +16,8 @@ source /etc/profile.d/modules.sh
 module add cuda/12.4.1
 
 MODEL_PATH="/fs/nexus-projects/wilddiffusion/vlm/qwen/qwen25_checkpoints_mminstruct_normal_3epochs"
-DATA_PATH="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/scienceqa/normal.json"
-OUTPUT_PATH="mminstruct_scienceqa/normal_ver.json"
+DATA_PATH="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mminstruct/test_keywords.json"
+OUTPUT_PATH="mminstruct/normal_ver.json"
 
 # python3 run_scienceqa.py infer --model-path="${MODEL_PATH}" --dataset-path="${DATA_PATH}" --dataset="scienceqa" --data-dir="${DATA_PATH}" --output-file="${OUTPUT_PATH}"
 python3 run_scienceqa_v2.py infer --model-path="${MODEL_PATH}" --dataset-path="${DATA_PATH}" --dataset="mminstruct" --data-dir="${DATA_PATH}" --output-file="${OUTPUT_PATH}"
