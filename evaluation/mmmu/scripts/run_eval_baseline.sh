@@ -15,10 +15,15 @@ source /fs/nexus-scratch/yliang17/miniconda3/bin/activate qwen
 source /etc/profile.d/modules.sh
 module add cuda/12.4.1
 
-MODEL_PATH="Qwen/Qwen2.5-VL-3B-Instruct"
-DATA_PATH="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/scienceqa/normal.json"
-OUTPUT_PATH="mcq_acc/baseline_ver.json"
+DATA_PATH="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mminstruct/test_keywords.json"
 
-# python3 run_scienceqa.py infer --model-path="${MODEL_PATH}" --dataset-path="${DATA_PATH}" --dataset="scienceqa" --data-dir="${DATA_PATH}" --output-file="${OUTPUT_PATH}"
+
+MODEL_PATH="Qwen/Qwen2.5-VL-3B-Instruct"
+OUTPUT_PATH="qs_gene/3B_ver.json"
 python3 run_scienceqa_v2.py infer --model-path="${MODEL_PATH}" --dataset-path="${DATA_PATH}" --dataset="scienceqa" --data-dir="${DATA_PATH}" --output-file="${OUTPUT_PATH}"
+
+MODEL_PATH="Qwen/Qwen2.5-VL-7B-Instruct"
+OUTPUT_PATH="qs_gene/7B_ver.json"
+python3 run_scienceqa_v2.py infer --model-path="${MODEL_PATH}" --dataset-path="${DATA_PATH}" --dataset="scienceqa" --data-dir="${DATA_PATH}" --output-file="${OUTPUT_PATH}"
+
 

@@ -21,6 +21,9 @@ import string
 import traceback
 import json
 from openai import OpenAI
+import random
+import copy
+import itertools
 
 # Local imports from refactored files
 from dataset_utils import load_dataset, load_dataset_json, dump_image, MMMU_preproc
@@ -28,6 +31,28 @@ from eval_utils import build_judge, eval_single_sample
 
 from qwen2_vl.model import Qwen2VLChat
 from qwen_vl_utils import process_vision_info
+
+
+def random_select_keywords(sample):
+    qs_before = sample['conversations'][0]['value']
+    keywords_before = qs_before.split('Keywords: ')[-1].split(', ')
+
+    # Generate all non-empty combinations of keywords
+    list_samples = []
+    for r in range(1, len(keywords_before) + 1):
+        for combo in itertools.combinations(keywords_before, r):
+            cur_sample = copy.deepcopy(sample)
+            
+            # Replace keywords in the question text
+            new_qs = qs_before.split('Keywords: ')[0] + 'Keywords: ' + ', '.join(combo)
+            cur_sample['conversations'][0]['value'] = new_qs
+            cur_sample['num_keywords'] = r
+            cur_sample['words'] = ', '.join(combo)
+            
+            list_samples.append(cur_sample)
+
+    return list_samples
+
 
 def run_inference(args):
     """Run inference on the MMMU dataset."""
@@ -63,37 +88,42 @@ def run_inference(args):
 
     # Run inference
     results = []
-    for i, sample in tqdm(enumerate(data), total=len(data), desc="Running inference"):
-        index = sample['index']
+    for i, sample_ori in tqdm(enumerate(data), total=len(data), desc="Running inference"):
+        index = sample_ori['index']
         
-        # Generate response using HuggingFace
-        messages = model.build_prompt(sample, args.dataset)
+        list_new_sample = random_select_keywords(sample_ori)
         
-        # Add CoT prompt if enabled
-        if args.use_cot and len(messages) > 0 and messages[-1]['type'] == 'text':
-            messages[-1]['value'] += cot_prompt
+        for sample in list_new_sample:
+            # Generate response using HuggingFace
+            messages = model.build_prompt(sample, args.dataset)
             
-        response = model.generate(messages)
+            # Add CoT prompt if enabled
+            if args.use_cot and len(messages) > 0 and messages[-1]['type'] == 'text':
+                messages[-1]['value'] += cot_prompt
+                
+            response = model.generate(messages)
+                
+            # print(f"response: {response}")
+            # print(f"annotation answer: {sample['conversations'][1]}")
+            # print('-' * 50)n
             
-        print(f"response: {response}")
-        print(f"annotation answer: {sample['conversations'][1]}")
-        print('-' * 50)
-        
-        # Save result
-        result = {
-            "question_id": int(index) if isinstance(index, np.integer) else index,
-            # "annotation": sample,
-            "task": args.dataset,
-            "result": {"gen": response},
-            "messages": messages,
-            "original_answer": sample['conversations'][1],
-        }
-        results.append(result)
-        
-        # Write intermediate results
-        if i % 10 == 0:
-            with open(args.output_file, 'w') as f:
-                json.dump(results, f, indent=4)
+            # Save result
+            result = {
+                "question_id": int(index) if isinstance(index, np.integer) else index,
+                # "annotation": sample,
+                "task": args.dataset,
+                "result": {"gen": response},
+                "num_keywords": sample["num_keywords"],
+                "keywords": sample["words"],
+                "messages": messages,
+                "original_answer": sample['conversations'][1],
+            }
+            results.append(result)
+            
+            # Write intermediate results
+            if i % 10 == 0:
+                with open(args.output_file, 'w') as f:
+                    json.dump(results, f, indent=4)
             
     # Write final results
     with open(args.output_file, 'w') as f:

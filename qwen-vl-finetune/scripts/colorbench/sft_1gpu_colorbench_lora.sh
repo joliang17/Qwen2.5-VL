@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=qwen_mcq
-#SBATCH --output=qwen_mcq.log
-#SBATCH --error=qwen_mcq.log
+#SBATCH --job-name=lora_3b_colorbench
+#SBATCH --output=lora_3b_colorbench.log
+#SBATCH --error=lora_3b_colorbench.log
 #SBATCH --time=48:00:00
 #SBATCH --account=cml-zhou
 #SBATCH --partition=cml-zhou
@@ -15,37 +15,35 @@ source /fs/nexus-scratch/yliang17/miniconda3/bin/activate qwen
 source /etc/profile.d/modules.sh
 module add cuda/12.4.1
 
-
 # Distributed training configuration
-export TRITON_CACHE_DIR="/fs/nexus-faculty/zhou/colorbench/cache"
+NPROC_PER_NODE=${NPROC_PER_NODE:-1}
 MASTER_ADDR=${MASTER_ADDR:-"127.0.0.1"}
 MASTER_PORT=${MASTER_PORT:-$(shuf -i 20001-29999 -n 1)}
 NNODES=${WORLD_SIZE:-1}
 NPROC_PER_NODE=1
+export TRITON_CACHE_DIR="/fs/nexus-faculty/zhou/colorbench/cache"
 
 # DeepSpeed configuration
-deepspeed=./scripts/zero3.json
+deepspeed=./scripts/zero2.json
 
 # Model configuration
-llm="Qwen/Qwen2.5-VL-3B-Instruct"  # Using HuggingFace model ID
+llm=Qwen/Qwen2.5-VL-3B-Instruct  # Using HuggingFace model ID
 
 # Training hyperparameters
-# lr=2e-7
-lr=2e-5
-batch_size=4
-grad_accum_steps=4
+lr=1e-4
+batch_size=16
+grad_accum_steps=1
 
 # Training entry point
 entry_file=qwenvl/train/train_qwen.py
 
 # Dataset configuration (replace with public dataset names)
-# datasets=scienceqa
-datasets="mminstruct_keywords"  # Using the new MMINSTRUCT datasets
+datasets=colorbench
 
 # Output configuration
-POSTFIX="llm_mlp_keywords"
-run_name="qwen2vl-3b-mminstruct_${POSTFIX}"
-output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen_mcq/qwen25_3b_mminstruct_${POSTFIX}_${lr}"
+POSTFIX="lora_test"
+run_name="qwen2vl-3b-colorbench_${POSTFIX}"
+output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen/qwen25_3b_colorbench_${POSTFIX}_${lr}"
 cache_dir="/fs/nexus-faculty/zhou/colorbench/cache"
 
 # Training arguments
@@ -59,8 +57,9 @@ args="
     --tune_mm_vision False \
     --tune_mm_mlp True \
     --tune_mm_llm True \
-    --bf16 \
-    --num_train_epochs 3 \
+    --lora_enable True \
+    --bf16 True \
+    --num_train_epochs 10 \
     --per_device_train_batch_size ${batch_size} \
     --per_device_eval_batch_size $((batch_size*2)) \
     --gradient_accumulation_steps ${grad_accum_steps} \
@@ -77,8 +76,7 @@ args="
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
     --model_max_length 8192 \
-    --gradient_checkpointing True \
-    --dataloader_num_workers 1 \
+    --dataloader_num_workers 4 \
     --run_name ${run_name} \
     --report_to wandb"
 
@@ -87,5 +85,3 @@ torchrun --nproc_per_node=${NPROC_PER_NODE} \
          --master_addr=${MASTER_ADDR} \
          --master_port=${MASTER_PORT} \
          ${entry_file} ${args}
-
-# python3 qwenvl/train/train_qwen.py  ${args}
