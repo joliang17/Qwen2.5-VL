@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#SBATCH --job-name=qwen_normal_lora
-#SBATCH --output=qwen_normal_lora.log
-#SBATCH --error=qwen_normal_lora.log
+#SBATCH --job-name=qwen_mcq_lora
+#SBATCH --output=qwen_mcq_lora.log
+#SBATCH --error=qwen_mcq_lora.log
 #SBATCH --time=48:00:00
 #SBATCH --account=cml-zhou
 #SBATCH --partition=cml-zhou
@@ -10,6 +10,13 @@
 #SBATCH --gres=gpu:a100:1
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=64G
+
+# Print job info (goes into .out log file)
+echo "[INFO] SLURM job started"
+echo "[INFO] Job ID: $SLURM_JOB_ID"
+echo "[INFO] Node list: $SLURM_NODELIST"
+echo "[INFO] GPUs allocated: $CUDA_VISIBLE_DEVICES"
+echo "----------------------------------------------"
 
 source /fs/nexus-scratch/yliang17/miniconda3/bin/activate qwen
 source /etc/profile.d/modules.sh
@@ -39,20 +46,19 @@ grad_accum_steps=1
 entry_file=qwenvl/train/train_qwen.py
 
 # Dataset configuration (replace with public dataset names)
-# datasets=scienceqa
-datasets="scienceqa_normal_v2"  # Using the new MMINSTRUCT datasets
+DATASET="scienceqa_keywords"  # Using the new MMINSTRUCT DATASET
 
 # Output configuration
-POSTFIX="lora_normal"
-run_name="qwen2vl-3b-scienceqa_key_${POSTFIX}"
-output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen_mcq/qwen25_3b_scienceqa_key_${POSTFIX}_${lr}"
+POSTFIX="lora_${DATASET}"
+run_name="qwen25_3b_scienceqa_${POSTFIX}"
+output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen_mcq/${run_name}"
 cache_dir="/fs/nexus-faculty/zhou/colorbench/cache"
 
 # Training arguments
     # --deepspeed ${deepspeed} \
 args="
     --model_name_or_path "${llm}" \
-    --dataset_use ${datasets} \
+    --dataset_use ${DATASET} \
     --output_dir ${output_dir} \
     --cache_dir ${cache_dir} \
     --data_flatten True \

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# keywords
+bash scripts/run_slurm_umiacs.sh scienceqa_keywords_1k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_keywords_2k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_keywords_3k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_keywords_4k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_keywords_5k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_keywords lora scienceqa/sft_1gpu_lora_para
+
+# normal
+bash scripts/run_slurm_umiacs.sh scienceqa_normal_v2_1k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_normal_v2_2k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_normal_v2_3k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_normal_v2_4k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_normal_v2_5k lora scienceqa/sft_1gpu_lora_para
+bash scripts/run_slurm_umiacs.sh scienceqa_normal_v2 lora scienceqa/sft_1gpu_lora_para

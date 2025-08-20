@@ -36,6 +36,56 @@ SCIENCE_QA_NORMAL = {
     "data_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa/images",
 }
 
+SCIENCE_QA_KEYWORDS_1K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_keywords_1000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_NORMAL_V2_1K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_normal_1000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_KEYWORDS_2K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_keywords_2000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_NORMAL_V2_2K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_normal_2000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_KEYWORDS_3K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_keywords_4000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_NORMAL_V2_3K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_normal_4000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_KEYWORDS_4K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_keywords_4000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_NORMAL_V2_4K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_normal_4000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_KEYWORDS_5K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_keywords_4000.json",
+    "data_path": "",
+}
+
+SCIENCE_QA_NORMAL_V2_5K = {
+    "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_normal_4000.json",
+    "data_path": "",
+}
+
 SCIENCE_QA_KEYWORDS = {
     "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_keywords.json",
     "data_path": "",
@@ -45,7 +95,6 @@ SCIENCE_QA_NORMAL_V2 = {
     "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/scienceqa_keywords/train_normal.json",
     "data_path": "",
 }
-
 
 MMINSTRUCT_KEYWORDS = {
     "annotation_path": "/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/qwen-vl-finetune/mminstruct/train_keywords.json",
@@ -72,6 +121,19 @@ data_dict = {
     "scienceqa_normal": SCIENCE_QA_NORMAL,
     "scienceqa_keywords": SCIENCE_QA_KEYWORDS,
     "scienceqa_normal_v2": SCIENCE_QA_NORMAL_V2,
+
+    # ScienceQA keyword/normal subsets
+    "scienceqa_keywords_1k": SCIENCE_QA_KEYWORDS_1K,
+    "scienceqa_normal_v2_1k": SCIENCE_QA_NORMAL_V2_1K,
+    "scienceqa_keywords_2k": SCIENCE_QA_KEYWORDS_2K,
+    "scienceqa_normal_v2_2k": SCIENCE_QA_NORMAL_V2_2K,
+    "scienceqa_keywords_3k": SCIENCE_QA_KEYWORDS_2K,
+    "scienceqa_normal_v2_3k": SCIENCE_QA_NORMAL_V2_2K,
+    "scienceqa_keywords_4k": SCIENCE_QA_KEYWORDS_4K,
+    "scienceqa_normal_v2_4k": SCIENCE_QA_NORMAL_V2_4K,
+    "scienceqa_keywords_5k": SCIENCE_QA_KEYWORDS_4K,
+    "scienceqa_normal_v2_5k": SCIENCE_QA_NORMAL_V2_4K,
+
     "mminstruct_keywords": MMINSTRUCT_KEYWORDS,
     "mminstruct": MMINSTRUCT,
     "colorbench": COLORBENCH, 
@@ -101,7 +163,21 @@ def data_list(dataset_names):
 
 if __name__ == "__main__":
     # dataset_names = ["scienceqa_normal", "scienceqa"]
-    dataset_names = ["scienceqa_keywords", "scienceqa_normal_v2", "mminstruct_keywords", "mminstruct", "colorbench"]
+    dataset_names = [
+        "scienceqa_keywords_1k",
+        "scienceqa_normal_v2_1k",
+        "scienceqa_keywords_2k",
+        "scienceqa_normal_v2_2k",
+        "scienceqa_keywords_3k",
+        "scienceqa_normal_v2_3k",
+        "scienceqa_keywords_4k",
+        "scienceqa_normal_v2_4k",
+        "scienceqa_keywords_5k",
+        "scienceqa_normal_v2_5k",
+        "mminstruct_keywords",
+        "mminstruct",
+        "colorbench"
+    ]
     configs = data_list(dataset_names)
     for config in configs:
         print(config)

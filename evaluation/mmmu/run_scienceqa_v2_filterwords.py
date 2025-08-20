@@ -93,7 +93,7 @@ def run_inference(args):
         
         list_new_sample = random_select_keywords(sample_ori)
         
-        for sample in list_new_sample:
+        for sample in tqdm(list_new_sample):
             # Generate response using HuggingFace
             messages = model.build_prompt(sample, args.dataset)
             
@@ -121,9 +121,9 @@ def run_inference(args):
             results.append(result)
             
             # Write intermediate results
-            if i % 10 == 0:
-                with open(args.output_file, 'w') as f:
-                    json.dump(results, f, indent=4)
+            # if i % 10 == 0:
+            with open(args.output_file, 'w') as f:
+                json.dump(results, f, indent=4)
             
     # Write final results
     with open(args.output_file, 'w') as f:

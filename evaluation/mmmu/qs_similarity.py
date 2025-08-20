@@ -62,14 +62,13 @@ def clip_text_diversity(
     device: str,
 ) -> float:
     """
-    Compute a diversity score in [0, 1] from CLIP cosine similarity.
-    diversity = 1 - ((cos_sim + 1) / 2)
+    Compute a similarity score in [0, 1] from CLIP cosine similarity.
+    similarity = 1 - ((cos_sim + 1) / 2)
     """
     embs = clip_text_embeddings([q1, q2], tokenizer, model, device)
-    cos_sim = torch.nn.functional.cosine_similarity(embs[0:1], embs[1:2]).item()
-    # map cosine similarity [-1, 1] -> [0, 1] similarity, then invert to diversity
-    diversity = 1.0 - ((cos_sim + 1.0) / 2.0)
-    return float(diversity)
+    similarity = torch.nn.functional.cosine_similarity(embs[0:1], embs[1:2]).item()
+    # map cosine similarity [-1, 1] -> [0, 1] similarity, then invert to similarity
+    return float(similarity)
 
 # ----------------------------
 # Question text extraction
@@ -101,7 +100,7 @@ def process_file(json_path: str, save_all_path: str, save_score_path: str):
     Expects items that contain:
       - item["result"]["gen"]  (generated QA blob)
       - item["original_answer"]["value"]  (original QA blob)
-    Prints per-item diversity and an overall average.
+    Prints per-item similarity and an overall average.
     """
     with open(json_path, "r") as f:
         data = json.load(f)
@@ -142,26 +141,26 @@ def process_file(json_path: str, save_all_path: str, save_score_path: str):
     per_num_keywords = {
         nk: {
             "count": len(scores),
-            "avg_diversity": np.round((sum(scores) / len(scores)), 4) if scores else None,
+            "avg_similarity": np.round((sum(scores) / len(scores)), 4) if scores else None,
         }
         for nk, scores in sorted(bucket.items(), key=lambda x: x[0])
     }
     overall_count = sum(v["count"] for v in per_num_keywords.values())
     overall_avg = (
-        np.round(sum((v["avg_diversity"] * v["count"]) for v in per_num_keywords.values()) / overall_count, 4)
+        np.round(sum((v["avg_similarity"] * v["count"]) for v in per_num_keywords.values()) / overall_count, 4)
         if overall_count else None
     )
     # print a quick table
-    print("\nAverage diversity by num_keywords:")
+    print("\nAverage similarity by num_keywords:")
     for nk, stats in per_num_keywords.items():
-        print(f"  {nk}: avg={stats['avg_diversity']:.4f} (n={stats['count']})")
+        print(f"  {nk}: avg={stats['avg_similarity']:.4f} (n={stats['count']})")
     print(f"\nOverall: avg={overall_avg:.4f} (n={overall_count})" if overall_avg is not None else "\nOverall: n=0")
 
     # --- save JSON: keep items + add summary ---
     out_obj = {
         "source_json": json_path,
         "count": overall_count,
-        "overall_avg_diversity": overall_avg,
+        "overall_avg_similarity": overall_avg,
         "per_num_keywords": per_num_keywords,
         # "items": list_scores,  # keeps your existing data
     }
@@ -176,7 +175,7 @@ def process_file(json_path: str, save_all_path: str, save_score_path: str):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--json_path", type=str, default="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mminstruct_lora_1e4_samples_ori/keywords_ver.json")
-    parser.add_argument("--save_folder", type=str, default="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/diversity/")
+    parser.add_argument("--save_folder", type=str, default="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/similarity/")
 
     args = parser.parse_args()
     json_path = args.json_path

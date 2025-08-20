@@ -26,6 +26,6 @@ MODEL_PATH="/fs/nexus-projects/wilddiffusion/vlm/qwen_mcq/${MODEL_NAME}"
 
 DATA_PATH="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/mminstruct/test_keywords_samples_ori.json"
 OUTPUT_PATH="mminstruct_lora_1e4_samples_ori/keywords_ver.json"
-python3 run_scienceqa_v2_filterwords.py infer --model-path="${MODEL_PATH}" --dataset-path="${DATA_PATH}" --dataset="mminstruct" --data-dir="${DATA_PATH}" --output-file="${OUTPUT_PATH}"
+# python3 run_scienceqa_v2_filterwords.py infer --model-path="${MODEL_PATH}" --dataset-path="${DATA_PATH}" --dataset="mminstruct" --data-dir="${DATA_PATH}" --output-file="${OUTPUT_PATH}"
 
 python3 qs_similarity.py --json_path="${OUTPUT_PATH}"

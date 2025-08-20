@@ -20,14 +20,15 @@ ROOT_FOLDER="/fs/nexus-scratch/yliang17/Research/VLM/Qwen2.5-VL/evaluation/mmmu/
 
 # INPUT_FOLDER="mminstruct_scienceqa_2e5"
 INPUT_FOLDER="scienceqa_expr"
-RESULT_TYPE="keywords_onqa"  # mcq / normal / baseline
-INPUT_FILE="${ROOT_FOLDER}/${INPUT_FOLDER}/${RESULT_TYPE}_ver.json"
 OUTPUT_FOLDER="${ROOT_FOLDER}/${INPUT_FOLDER}_acc"
+mkdir -p "${OUTPUT_FOLDER}"
 
-python3 run_scienceqa_v2.py eval --input-file="${INPUT_FILE}" --output-folder="${OUTPUT_FOLDER}" --api-key="${API_KEY}" --result-type="${RESULT_TYPE}"
-
-RESULT_TYPE="normal"  # mcq / normal / baseline
-INPUT_FILE="${ROOT_FOLDER}/${INPUT_FOLDER}/${RESULT_TYPE}_ver.json"
-OUTPUT_FOLDER="${ROOT_FOLDER}/${INPUT_FOLDER}_acc"
-
-python3 run_scienceqa_v2.py eval --input-file="${INPUT_FILE}" --output-folder="${OUTPUT_FOLDER}" --api-key="${API_KEY}" --result-type="${RESULT_TYPE}"
+for INPUT_FILE in ${ROOT_FOLDER}/${INPUT_FOLDER}/*.json; do
+    RESULT_TYPE=$(basename "$INPUT_FILE" .json)
+    echo "Running eval on $INPUT_FILE with result_type=$RESULT_TYPE"
+    python3 run_scienceqa_v2.py eval \
+        --input-file="$INPUT_FILE" \
+        --output-folder="$OUTPUT_FOLDER" \
+        --api-key="$API_KEY" \
+        --result-type="$RESULT_TYPE"
+done
