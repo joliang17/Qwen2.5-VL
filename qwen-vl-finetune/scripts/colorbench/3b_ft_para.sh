@@ -1,19 +1,16 @@
 #!/bin/bash
 
-#SBATCH --job-name=lora_3b_colorbench
-#SBATCH --output=lora_3b_colorbench.log
-#SBATCH --error=lora_3b_colorbench.log
-#SBATCH --time=48:00:00
-#SBATCH --account=cml-zhou
-#SBATCH --partition=cml-zhou
-#SBATCH --qos=cml-high_long
-#SBATCH --gres=gpu:a100:1
-#SBATCH --cpus-per-task=6
-#SBATCH --mem=64G
+# Print job info (goes into .out log file)
+echo "[INFO] SLURM job started"
+echo "[INFO] Job ID: $SLURM_JOB_ID"
+echo "[INFO] Node list: $SLURM_NODELIST"
+echo "[INFO] GPUs allocated: $CUDA_VISIBLE_DEVICES"
+echo "----------------------------------------------"
 
 source /fs/nexus-scratch/yliang17/miniconda3/bin/activate qwen
 source /etc/profile.d/modules.sh
 module add cuda/12.4.1
+
 
 # Distributed training configuration
 NPROC_PER_NODE=${NPROC_PER_NODE:-1}
@@ -24,42 +21,45 @@ NPROC_PER_NODE=1
 export TRITON_CACHE_DIR="/fs/nexus-faculty/zhou/colorbench/cache"
 
 # DeepSpeed configuration
-deepspeed=./scripts/zero2.json
+deepspeed=./scripts/zero3.json
 
 # Model configuration
-llm=Qwen/Qwen2.5-VL-3B-Instruct  # Using HuggingFace model ID
+llm="Qwen/Qwen2.5-VL-3B-Instruct"  # Using HuggingFace model ID
 
 # Training hyperparameters
-lr=1e-4
-batch_size=16
-grad_accum_steps=1
+lr=2e-5
+batch_size=4
+grad_accum_steps=4
 
 # Training entry point
 entry_file=qwenvl/train/train_qwen.py
 
 # Dataset configuration (replace with public dataset names)
-datasets=colorbench
+DATASET="colorbench"  # Using the new MMINSTRUCT DATASET
+
+TUNE_LLM="False"
+TUNE_MLP="False"
+TUNE_VISION="False"
 
 # Output configuration
-POSTFIX="lora_test"
-run_name="qwen2vl-3b-colorbench_${POSTFIX}"
-output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen/qwen25_3b_colorbench_${POSTFIX}_${lr}"
+POSTFIX="ft_llm${TUNE_LLM}_mlp${TUNE_MLP}_vision_${TUNE_VISION}"
+run_name="qwen25_3b_colorbench_${POSTFIX}"
+output_dir="/fs/nexus-projects/wilddiffusion/vlm/qwen_cb/${run_name}"
 cache_dir="/fs/nexus-faculty/zhou/colorbench/cache"
 
 # Training arguments
     # --deepspeed ${deepspeed} \
 args="
     --model_name_or_path "${llm}" \
-    --dataset_use ${datasets} \
+    --dataset_use ${DATASET} \
     --output_dir ${output_dir} \
     --cache_dir ${cache_dir} \
     --data_flatten True \
-    --tune_mm_vision False \
-    --tune_mm_mlp True \
-    --tune_mm_llm True \
-    --lora_enable True \
-    --bf16 True \
-    --num_train_epochs 10 \
+    --tune_mm_vision ${TUNE_VISION} \
+    --tune_mm_mlp ${TUNE_MLP} \
+    --tune_mm_llm ${TUNE_LLM} \
+    --bf16 \
+    --num_train_epochs 3 \
     --per_device_train_batch_size ${batch_size} \
     --per_device_eval_batch_size $((batch_size*2)) \
     --gradient_accumulation_steps ${grad_accum_steps} \
@@ -76,7 +76,8 @@ args="
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
     --model_max_length 8192 \
-    --dataloader_num_workers 4 \
+    --gradient_checkpointing True \
+    --dataloader_num_workers 1 \
     --run_name ${run_name} \
     --report_to wandb"
 
@@ -85,3 +86,5 @@ torchrun --nproc_per_node=${NPROC_PER_NODE} \
          --master_addr=${MASTER_ADDR} \
          --master_port=${MASTER_PORT} \
          ${entry_file} ${args}
+
+# python3 qwenvl/train/train_qwen.py  ${args}

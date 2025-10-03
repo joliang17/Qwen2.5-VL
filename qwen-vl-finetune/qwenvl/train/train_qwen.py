@@ -94,6 +94,20 @@ def set_model(model_args, model):
         model.lm_head.requires_grad = False
 
 
+def list_trainable_parameter_names(model, only_lora: bool = False):
+    names = []
+    for n, p in model.named_parameters():
+        if not p.requires_grad:
+            continue
+        if only_lora and not any(tag in n for tag in ("lora_", "lora_A", "lora_B")):
+            continue
+        names.append(n)
+    print(f"{len(names)} trainable tensors:")
+    for n in names:
+        print("  ", n)
+    return names
+
+
 def train(attn_implementation="flash_attention_2"):
     global local_rank
 
@@ -130,10 +144,26 @@ def train(attn_implementation="flash_attention_2"):
 
     if model_args.lora_enable:
         from peft import LoraConfig, get_peft_model
+
+        saved_module = []
+        if model_args.tune_mm_mlp:
+            saved_module.append("visual.merger")
+        if model_args.tune_mm_vision:
+            saved_module.append("visual")
+
+        modules_to_save = []
+        for candidate in saved_module:
+            try:
+                _ = dict(model.named_modules())[candidate]
+                modules_to_save.append(candidate)
+            except KeyError:
+                pass
+        
         lora_config = LoraConfig(
             r=model_args.lora_r,
             lora_alpha=model_args.lora_alpha,
             target_modules=model_args.lora_target_modules,
+            modules_to_save=modules_to_save,
             lora_dropout=model_args.lora_dropout,
             bias=model_args.lora_bias,
             task_type="CAUSAL_LM",
@@ -177,6 +207,8 @@ def train(attn_implementation="flash_attention_2"):
     
     if model_args.lora_enable is False:
         set_model(model_args, model)
+
+    _ = list_trainable_parameter_names(model)
 
     if data_args.data_packing:
         data_module = make_supervised_data_module_packed(tokenizer=tokenizer, data_args=data_args)
